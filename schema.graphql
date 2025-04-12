@@ -1,0 +1,52 @@
+directive @authorized on FIELD_DEFINITION
+
+
+type Catalog {
+  id: Int
+  name: String
+  parent: Catalog!
+  childs: [Catalog!]!
+  items(limit: Int = 3, offset: Int = 0): [Item!]!
+}
+
+
+type Item {
+  id: Int
+  name: String
+  parent: Catalog!
+  seller: Seller!
+  inCart: Int! @authorized
+  inStockText: String!
+}
+
+
+type Seller {
+  id: Int
+  name: String
+  deals: Int!
+  items(limit: Int = 3, offset: Int = 0): [Item!]!
+}
+
+type Query {
+  Catalog(ID: ID): Catalog
+  Shop(parentID: ID): [Catalog!]!
+  Seller(ID: ID): Seller!
+  MyCart: [CartItem!]! @authorized
+}
+
+
+type CartItem {
+  quantity: Int!
+  item: Item!
+}
+
+
+input CartInput {
+  itemID: Int!
+  quantity: Int!
+}
+
+type Mutation {
+  AddToCart(in: CartInput): [CartItem!]! @authorized
+  RemoveFromCart(in: CartInput!): [CartItem!]! @authorized
+}
